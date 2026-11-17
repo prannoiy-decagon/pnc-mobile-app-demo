@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PNC Collections Payment Mockup</title>
+<style>
+  :root{
+    --page-bg:#e9ebee;
+    --page-text:#20262b;
+    --panel-bg:#ffffff;
+    --panel-border:#d9dde1;
+    --muted:#6b7580;
+
+    --pnc-navy:#0c3b63;
+    --pnc-navy-dark:#082a48;
+    --pnc-blue:#0a66b2;
+    --pnc-blue-dark:#084f8c;
+    --pnc-orange:#ef6a00;
+    --pnc-gray-dark:#333f48;
+    --pnc-gray-light:#ededee;
+    --app-bg:#f5f6f7;
+    --green:#1e8e3e;
+    --red:#c0362c;
+    --hairline:#e2e4e7;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --page-bg:#15181b;
+      --page-text:#e7e9eb;
+      --panel-bg:#1d2124;
+      --panel-border:#2c3135;
+      --muted:#9aa3ab;
+    }
+  }
+  color-scheme: light dark;
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--page-bg);
+    color:var(--page-text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:32px 16px;
+  }
+
+  .stage{
+    display:flex;
+    gap:40px;
+    align-items:flex-start;
+    flex-wrap:wrap;
+    justify-content:center;
+    max-width:980px;
+  }
+
+  /* ---------- iPhone frame ---------- */
+  .iphone-wrap{
+    position:relative;
+    flex:0 0 auto;
+  }
+  .iphone{
+    position:relative;
+    width:375px;
+    height:812px;
+    background:#0a0a0a;
+    border-radius:55px;
+    padding:14px;
+    box-shadow:0 30px 60px -20px rgba(0,0,0,0.45), 0 0 0 2px #050505;
+  }
+  .iphone::before{ /* side buttons - left */
+    content:"";
+    position:absolute;
+    left:-3px; top:120px;
+    width:3px; height:32px;
+    background:#0a0a0a;
+    border-radius:2px 0 0 2px;
+    box-shadow: 0 46px 0 #0a0a0a, 0 92px 0 #0a0a0a;
+  }
+  .iphone::after{ /* power button - right */
+    content:"";
+    position:absolute;
+    right:-3px; top:180px;
+    width:3px; height:70px;
+    background:#0a0a0a;
+    border-radius:0 2px 2px 0;
+  }
+  .screen-viewport{
+    position:relative;
+    width:100%;
+    height:100%;
+    background:var(--app-bg);
+    border-radius:42px;
+    overflow:hidden;
+  }
+  .notch{
+    position:absolute;
+    top:0; left:50%;
+    transform:translateX(-50%);
+    width:150px; height:28px;
+    background:#0a0a0a;
+    border-radius:0 0 18px 18px;
+    z-index:50;
+  }
+  .status-bar{
+    position:absolute;
+    top:0; left:0; right:0;
+    height:44px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 24px;
+    font-size:15px;
+    font-weight:600;
+    z-index:40;
+    color:#111;
+    pointer-events:none;
+  }
+  .status-bar.on-dark{ color:#fff; }
+  .status-icons{ display:flex; align-items:center; gap:5px; }
+  .home-indicator{
+    position:absolute;
+    bottom:8px; left:50%;
+    transform:translateX(-50%);
+    width:134px; height:5px;
+    background:#111;
+    border-radius:3px;
+    opacity:.55;
+    z-index:50;
+  }
+
+  .screen{
+    position:absolute;
+    inset:0;
+    display:none;
+    flex-direction:column;
+    overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
+  }
+  .screen.active{ display:flex; }
+
+  /* ---------- shared app chrome ---------- */
+  .app-topbar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:54px 18px 14px;
+    background:var(--app-bg);
+    flex:0 0 auto;
+  }
+  .app-topbar h1{
+    font-size:17px;
+    font-weight:700;
+    color:var(--pnc-gray-dark);
+    margin:0;
+    flex:1;
+    text-align:center;
+  }
+  .icon-btn{
+    width:28px; height:28px;
+    display:flex;align-items:center;justify-content:center;
+    color:var(--pnc-gray-dark);
+    font-size:20px;
+    font-weight:400;
+    cursor:pointer;
+    background:none;border:none;
+  }
+  .hairline{ height:1px; background:var(--hairline); }
+
+  .scroll-body{ padding:16px 18px 32px; flex:1; }
+
+  /* ---------- Screen 1: home ---------- */
+  .home-header{
+    background:
+      radial-gradient(circle at 20% 0%, rgba(255,255,255,0.06), transparent 40%),
+      linear-gradient(160deg, var(--pnc-navy) 0%, var(--pnc-navy-dark) 100%);
+    padding:54px 20px 26px;
+    color:#fff;
+    position:relative;
+  }
+  .home-header .top-icons{
+    display:flex; justify-content:space-between; align-items:center;
+    margin-bottom:22px;
+  }
+  .avatar-circle{
+    width:40px;height:40px;border-radius:50%;
+    background:rgba(255,255,255,0.12);
+    display:flex;align-items:center;justify-content:center;
+    font-size:17px;
+  }
+  .home-header h1{ font-size:28px; font-weight:800; margin:0 0 16px; }
+  .alert-card{
+    background:#fff; color:var(--pnc-gray-dark);
+    border-radius:14px; padding:16px;
+    display:flex; gap:14px; align-items:flex-start;
+    box-shadow:0 8px 20px -10px rgba(0,0,0,0.3);
+  }
+  .alert-card .dot{
+    width:34px;height:34px;border-radius:50%;
+    background:#fdeeea; color:var(--red);
+    display:flex;align-items:center;justify-content:center;
+    font-size:17px; flex:0 0 auto;
+  }
+  .alert-card .title{ font-weight:700; font-size:15px; margin:0 0 4px; }
+  .alert-card .body{ font-size:13px; color:var(--muted); line-height:1.4; margin:0; }
+
+  .section-label{
+    background:var(--pnc-gray-light);
+    color:var(--pnc-gray-dark);
+    font-weight:700; font-size:13px;
+    padding:10px 18px;
+    margin:0;
+  }
+  .account-card{
+    background:#fff;
+    padding:18px;
+    border-bottom:1px solid var(--hairline);
+  }
+  .account-card .row{
+    display:flex; justify-content:space-between; align-items:flex-start; gap:10px;
+  }
+  .account-card .acct-name{
+    color:var(--pnc-blue); font-weight:700; font-size:15px; line-height:1.3;
+  }
+  .badge-past-due{
+    display:inline-block;
+    background:#fdeeea; color:var(--red);
+    font-size:11px; font-weight:700;
+    padding:3px 8px; border-radius:20px;
+    margin-top:6px;
+  }
+  .amount-block{ text-align:right; }
+  .amount-block .amt{ font-size:22px; font-weight:800; color:var(--pnc-gray-dark); }
+  .amount-block .lbl{ font-size:12px; color:var(--muted); margin-top:2px; }
+
+  .pay-now-row{
+    display:flex; align-items:center; justify-content:flex-end;
+    gap:10px; margin-top:14px;
+  }
+  .btn-pill{
+    display:inline-flex; align-items:center; justify-content:center;
+    background:var(--pnc-blue);
+    color:#fff; font-weight:700; font-size:15px;
+    border:none; border-radius:30px;
+    padding:12px 22px;
+    cursor:pointer;
+    width:100%;
+  }
+  .btn-pill:active{ background:var(--pnc-blue-dark); }
+  .btn-outline{
+    background:#fff;
+    color:var(--pnc-blue);
+    border:1.5px solid var(--pnc-blue);
+    font-weight:700; font-size:15px;
+    border-radius:30px;
+    padding:12px 22px;
+    width:100%;
+    cursor:pointer;
+  }
+
+  .bottom-nav{
+    margin-top:auto;
+    background:var(--pnc-navy);
+    display:flex;
+    padding:10px 4px 26px;
+    flex:0 0 auto;
+  }
+  .bottom-nav .tab{
+    flex:1; text-align:center; color:rgba(255,255,255,0.65);
+    font-size:11px; font-weight:600;
+  }
+  .bottom-nav .tab.active{ color:#fff; }
+  .bottom-nav .tab .ico{ font-size:18px; display:block; margin-bottom:3px; }
+
+  /* ---------- generic sub-screen topbar w/ back + close ---------- */
+  .topbar-plain{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:54px 16px 14px;
+  }
+  .topbar-plain h1{ font-size:17px; font-weight:700; color:var(--pnc-gray-dark); margin:0; }
+
+  /* ---------- account detail ---------- */
+  .detail-hero{
+    background:#fff; margin:0 18px 16px; border-radius:14px;
+    padding:18px; box-shadow:0 2px 10px -4px rgba(0,0,0,0.12);
+  }
+  .detail-hero .acct-title{ font-weight:700; color:var(--pnc-gray-dark); font-size:15px; }
+  .detail-hero .acct-sub{ font-size:12px; color:var(--muted); margin-top:2px; }
+  .detail-row{
+    display:flex; justify-content:space-between;
+    padding:12px 0; border-bottom:1px solid var(--hairline);
+    font-size:14px;
+  }
+  .detail-row:last-child{ border-bottom:none; }
+  .detail-row .k{ color:var(--muted); }
+  .detail-row .v{ color:var(--pnc-gray-dark); font-weight:600; }
+  .detail-row.total .v{ color:var(--red); font-size:17px; font-weight:800; }
+
+  .field-card{
+    background:#fff; border-radius:14px; padding:4px 16px;
+    margin:0 18px 16px;
+    box-shadow:0 2px 10px -4px rgba(0,0,0,0.12);
+  }
+  .field{
+    padding:14px 0; border-bottom:1px solid var(--hairline);
+  }
+  .field:last-child{ border-bottom:none; }
+  .field label{
+    display:block; font-size:12.5px; color:var(--muted); margin-bottom:4px;
+  }
+  .field .value-lg{ font-size:28px; font-weight:800; color:var(--pnc-gray-dark); }
+  .field .value-input{
+    width:100%; border:none; outline:none; background:transparent;
+    font-size:28px; font-weight:800; color:var(--pnc-gray-dark);
+    font-family:inherit;
+  }
+  .field .select-row{
+    display:flex; justify-content:space-between; align-items:center;
+    font-size:15px; font-weight:600; color:var(--pnc-gray-dark);
+  }
+  .chev{ color:var(--pnc-blue); font-size:16px; }
+
+  .note{
+    font-size:12.5px; color:var(--muted);
+    margin:0 18px 16px; line-height:1.5;
+  }
+
+  .disclosure-box{
+    background:#fff; border-radius:14px; margin:0 18px 16px;
+    padding:16px; font-size:13px; line-height:1.6; color:var(--pnc-gray-dark);
+    box-shadow:0 2px 10px -4px rgba(0,0,0,0.12);
+  }
+
+  .cta-wrap{ padding:0 18px; margin-top:auto; padding-bottom:28px; display:flex; align-items:center; gap:10px; }
+  .cta-wrap.top-pad{ margin-top:12px; }
+
+  /* ---------- modal ---------- */
+  .modal-overlay{
+    position:absolute; inset:0;
+    background:rgba(20,24,28,0.55);
+    display:none;
+    align-items:center; justify-content:center;
+    z-index:60;
+    padding:0 28px;
+  }
+  .modal-overlay.show{ display:flex; }
+  .modal-box{
+    background:#fff; border-radius:18px;
+    padding:28px 22px 22px;
+    text-align:center;
+    width:100%;
+    box-shadow:0 20px 40px -10px rgba(0,0,0,0.3);
+  }
+  .modal-box .check-circle{
+    width:58px;height:58px;border-radius:50%;
+    border:2.5px solid var(--pnc-blue);
+    color:var(--pnc-blue);
+    display:flex;align-items:center;justify-content:center;
+    font-size:26px; margin:0 auto 16px;
+  }
+  .modal-box h2{ font-size:19px; margin:0 0 6px; color:var(--pnc-gray-dark); }
+  .modal-box p{ font-size:13px; color:var(--muted); margin:0 0 20px; line-height:1.5; }
+  .modal-box .btn-pill{ margin-bottom:10px; }
+
+  /* ---------- success ---------- */
+  .success-wrap{ text-align:center; padding:28px 24px 8px; }
+  .success-check{
+    width:72px;height:72px;border-radius:50%;
+    background:var(--green); color:#fff;
+    display:flex;align-items:center;justify-content:center;
+    font-size:34px; margin:0 auto 18px;
+  }
+  .success-wrap .big-amt{ font-size:34px; font-weight:800; color:var(--pnc-gray-dark); }
+  .success-wrap .headline{ font-size:17px; font-weight:700; margin-top:6px; color:var(--pnc-gray-dark); }
+
+  /* ---------- side info panel ---------- */
+  .side-panel{
+    width:300px;
+    background:var(--panel-bg);
+    border:1px solid var(--panel-border);
+    border-radius:16px;
+    padding:20px;
+    flex:0 0 auto;
+  }
+  .side-panel h2{
+    font-size:13px; text-transform:uppercase; letter-spacing:.04em;
+    color:var(--muted); margin:0 0 14px;
+  }
+  .cue{
+    display:none;
+    padding:14px 0;
+    border-top:1px solid var(--panel-border);
+  }
+  .cue:first-of-type{ border-top:none; }
+  .cue.active{ display:block; }
+  .cue .step{ font-size:11px; font-weight:700; color:var(--pnc-orange); margin-bottom:4px; text-transform:uppercase; letter-spacing:.03em; }
+  .cue .line{ font-size:14px; line-height:1.5; color:var(--page-text); }
+  .controls{
+    display:flex; gap:8px; margin-top:18px;
+  }
+  .ctrl-btn{
+    flex:1;
+    padding:9px 10px;
+    border-radius:8px;
+    border:1px solid var(--panel-border);
+    background:transparent;
+    color:var(--page-text);
+    font-size:13px;
+    cursor:pointer;
+  }
+  .ctrl-btn:hover{ background:rgba(127,127,127,0.08); }
+</style>
+</head>
+<body>
+
+<div class="stage">
+
+  <div class="iphone-wrap">
+    <div class="iphone">
+      <div class="screen-viewport" id="viewport">
+        <div class="notch"></div>
+
+        <!-- SCREEN 1: HOME -->
+        <div class="screen active" data-screen="1">
+          <div class="status-bar on-dark"><span>9:41</span><span class="status-icons">●●●  📶  🔋</span></div>
+          <div class="home-header">
+            <div class="top-icons">
+              <div class="avatar-circle">👤</div>
+              <div class="avatar-circle">❓</div>
+            </div>
+            <h1>Hello, Alex</h1>
+            <div class="alert-card">
+              <div class="dot">!</div>
+              <div>
+                <p class="title">Your credit card is 45 days past due</p>
+                <p class="body">Make a payment today to bring your account current.</p>
+              </div>
+            </div>
+          </div>
+
+          <p class="section-label">Credit Cards</p>
+          <div class="account-card">
+            <div class="row">
+              <div>
+                <div class="acct-name">PNC Core Visa® x7315</div>
+                <span class="badge-past-due">45 Days Past Due</span>
+              </div>
+              <div class="amount-block">
+                <div class="amt">$4,000.00</div>
+                <div class="lbl">Past Due Amount</div>
+              </div>
+            </div>
+            <div class="pay-now-row">
+              <button class="btn-pill" style="width:auto;padding:12px 26px;" onclick="go(2)">Make a Payment</button>
+            </div>
+          </div>
+
+          <p class="section-label">Deposit Accounts</p>
+          <div class="account-card" style="border-bottom:none;">
+            <div class="row">
+              <div class="acct-name">Virtual Wallet® Checking x1234</div>
+              <div class="amount-block">
+                <div class="amt">$7,340.18</div>
+                <div class="lbl">Available Balance</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="bottom-nav">
+            <div class="tab active"><span class="ico">🏠</span>Accounts</div>
+            <div class="tab"><span class="ico">💸</span>Pay &amp; Transfer</div>
+            <div class="tab"><span class="ico">🏅</span>Rewards</div>
+            <div class="tab"><span class="ico">📥</span>Deposit</div>
+            <div class="tab"><span class="ico">☰</span>More</div>
+          </div>
+          <div class="home-indicator"></div>
+        </div>
+
+        <!-- SCREEN 2: ACCOUNT DETAIL -->
+        <div class="screen" data-screen="2">
+          <div class="status-bar"><span>9:41</span><span class="status-icons">●●●  📶  🔋</span></div>
+          <div class="topbar-plain">
+            <button class="icon-btn" onclick="go(1)">‹</button>
+            <h1>Account Details</h1>
+            <button class="icon-btn" onclick="go(1)">✕</button>
+          </div>
+          <div class="scroll-body" style="padding-top:0;">
+            <div class="detail-hero">
+              <div class="acct-title">PNC Core Visa® x7315</div>
+              <div class="acct-sub">45 days past due</div>
+              <div class="hairline" style="margin:14px -18px;"></div>
+              <div class="detail-row"><div class="k">Account Balance</div><div class="v">$12,540.00</div></div>
+              <div class="detail-row"><div class="k">Days Past Due</div><div class="v">45</div></div>
+              <div class="detail-row total"><div class="k">Past Due Amount</div><div class="v">$4,000.00</div></div>
+            </div>
+            <div class="cta-wrap top-pad">
+              <button class="btn-pill" onclick="go(3)">Pay Past Due Amount</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- SCREEN 3: PAYMENT ENTRY -->
+        <div class="screen" data-screen="3">
+          <div class="status-bar"><span>9:41</span><span class="status-icons">●●●  📶  🔋</span></div>
+          <div class="topbar-plain">
+            <button class="icon-btn" onclick="go(2)">‹</button>
+            <h1>Make a Payment</h1>
+            <button class="icon-btn" onclick="go(1)">✕</button>
+          </div>
+          <div class="scroll-body" style="padding-top:0;">
+            <p class="note" style="margin-left:0;margin-right:0;">Fields marked with an asterisk(*) are required.</p>
+            <div class="field-card">
+              <div class="field">
+                <label>Amount*</label>
+                <input class="value-input" id="payAmount" value="$4,000.00">
+              </div>
+              <div class="field">
+                <label>Pay From*</label>
+                <div class="select-row">
+                  <span>Virtual Wallet® Checking x1234</span>
+                  <span class="chev">⌄</span>
+                </div>
+              </div>
+              <div class="field">
+                <label>Payment Date*</label>
+                <div class="select-row">
+                  <span id="payDate3">Today</span>
+                  <span class="chev">⌄</span>
+                </div>
+              </div>
+            </div>
+            <div class="cta-wrap top-pad">
+              <button class="btn-pill" onclick="go(4)">Continue</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- SCREEN 4: REVIEW / DISCLOSURE -->
+        <div class="screen" data-screen="4">
+          <div class="status-bar"><span>9:41</span><span class="status-icons">●●●  📶  🔋</span></div>
+          <div class="topbar-plain">
+            <button class="icon-btn" onclick="go(3)">‹</button>
+            <h1>Review Payment</h1>
+            <button class="icon-btn" onclick="go(1)">✕</button>
+          </div>
+          <div class="scroll-body" style="padding-top:0;">
+            <div class="field-card">
+              <div class="detail-row"><div class="k">Amount</div><div class="v">$4,000.00</div></div>
+              <div class="detail-row"><div class="k">Pay From</div><div class="v">Checking x1234</div></div>
+              <div class="detail-row"><div class="k">Payment Date</div><div class="v" id="payDate4">Today</div></div>
+            </div>
+            <div class="disclosure-box">
+              By selecting Submit, you authorize PNC Bank to electronically debit your account ending in 1234 for $4,000.00 on the payment date shown above. To cancel this payment, contact us before 4:00 PM ET on the payment date. If the payment is returned for insufficient funds, a fee may apply.
+            </div>
+            <div class="cta-wrap top-pad">
+              <button class="btn-pill" onclick="openModal()">Submit Payment</button>
+            </div>
+          </div>
+
+          <div class="modal-overlay" id="confirmModal">
+            <div class="modal-box">
+              <div class="check-circle">✓</div>
+              <h2>Confirm $4,000.00?</h2>
+              <p>This will be debited from Checking x1234 on the date shown.</p>
+              <button class="btn-pill" onclick="closeModalAndGo(5)">Confirm</button>
+              <button class="btn-outline" onclick="closeModal()">Back</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- SCREEN 5: SUCCESS -->
+        <div class="screen" data-screen="5">
+          <div class="status-bar"><span>9:41</span><span class="status-icons">●●●  📶  🔋</span></div>
+          <div class="topbar-plain">
+            <span></span>
+            <h1>Payment Scheduled</h1>
+            <button class="icon-btn" onclick="go(1)">✕</button>
+          </div>
+          <div class="success-wrap">
+            <div class="success-check">✓</div>
+            <div class="big-amt">$4,000.00</div>
+            <div class="headline">Payment Scheduled</div>
+          </div>
+          <div class="scroll-body">
+            <div class="field-card">
+              <div class="detail-row"><div class="k">Payment Date</div><div class="v" id="payDate5">Today</div></div>
+              <div class="detail-row"><div class="k">Confirmation Number</div><div class="v">PNC-73150926</div></div>
+              <div class="detail-row"><div class="k">Pay From</div><div class="v">Checking x1234</div></div>
+              <div class="detail-row"><div class="k">Account</div><div class="v">PNC Core Visa® x7315</div></div>
+            </div>
+            <div class="cta-wrap top-pad" style="display:block;">
+              <button class="btn-pill" onclick="go(1)">Done</button>
+            </div>
+          </div>
+          <div class="home-indicator"></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="side-panel">
+    <h2>Call script cue</h2>
+
+    <div class="cue active" data-cue="1">
+      <div class="step">Step 1 · Home</div>
+      <div class="line">After authenticating Alex (SSN last 4, DOB, or address), reference the credit card account and state it's 45 days past due.</div>
+    </div>
+    <div class="cue" data-cue="2">
+      <div class="step">Step 2 · Account detail</div>
+      <div class="line">Briefly assess the reason for delinquency, state the past due amount ($4,000.00), and ask if Alex would like to make a payment today.</div>
+    </div>
+    <div class="cue" data-cue="3">
+      <div class="step">Step 3 · Payment entry</div>
+      <div class="line">Confirm the amount and which checking/savings account to debit. PNC only takes ACH by phone — no card entry.</div>
+    </div>
+    <div class="cue" data-cue="4">
+      <div class="step">Step 4 · Review &amp; disclosure</div>
+      <div class="line">Read the one-time payment authorization disclosure verbatim, then get verbal authorization before submitting.</div>
+    </div>
+    <div class="cue" data-cue="5">
+      <div class="step">Step 5 · Confirmation</div>
+      <div class="line">Read back the confirmation number and payment date, same as on the call.</div>
+    </div>
+
+    <div class="controls">
+      <button class="ctrl-btn" onclick="prevScreen()">‹ Back</button>
+      <button class="ctrl-btn" onclick="restart()">Restart</button>
+      <button class="ctrl-btn" onclick="nextScreen()">Next ›</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  var current = 1;
+  var total = 5;
+
+  function formatToday(){
+    var d = new Date();
+    return d.toLocaleDateString('en-US', { month:'long', day:'numeric', year:'numeric' });
+  }
+
+  function go(n){
+    document.querySelectorAll('.screen').forEach(function(el){ el.classList.remove('active'); });
+    document.querySelector('.screen[data-screen="'+n+'"]').classList.add('active');
+    document.querySelectorAll('.cue').forEach(function(el){ el.classList.remove('active'); });
+    var cue = document.querySelector('.cue[data-cue="'+n+'"]');
+    if(cue) cue.classList.add('active');
+    current = n;
+    closeModal();
+  }
+  function nextScreen(){ if(current < total) go(current+1); }
+  function prevScreen(){ if(current > 1) go(current-1); }
+  function restart(){ go(1); }
+
+  function openModal(){ document.getElementById('confirmModal').classList.add('show'); }
+  function closeModal(){ document.getElementById('confirmModal').classList.remove('show'); }
+  function closeModalAndGo(n){ closeModal(); go(n); }
+
+  window.addEventListener('DOMContentLoaded', function(){
+    var today = formatToday();
+    document.getElementById('payDate3').textContent = today;
+    document.getElementById('payDate4').textContent = today;
+    document.getElementById('payDate5').textContent = today;
+  });
+</script>
+
+</body>
+</html>
