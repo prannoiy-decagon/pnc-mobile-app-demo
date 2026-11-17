@@ -376,42 +376,6 @@
   .success-wrap .big-amt{ font-size:34px; font-weight:800; color:var(--pnc-gray-dark); }
   .success-wrap .headline{ font-size:17px; font-weight:700; margin-top:6px; color:var(--pnc-gray-dark); }
 
-  /* ---------- side info panel ---------- */
-  .side-panel{
-    width:300px;
-    background:var(--panel-bg);
-    border:1px solid var(--panel-border);
-    border-radius:16px;
-    padding:20px;
-    flex:0 0 auto;
-  }
-  .side-panel h2{
-    font-size:13px; text-transform:uppercase; letter-spacing:.04em;
-    color:var(--muted); margin:0 0 14px;
-  }
-  .cue{
-    display:none;
-    padding:14px 0;
-    border-top:1px solid var(--panel-border);
-  }
-  .cue:first-of-type{ border-top:none; }
-  .cue.active{ display:block; }
-  .cue .step{ font-size:11px; font-weight:700; color:var(--pnc-orange); margin-bottom:4px; text-transform:uppercase; letter-spacing:.03em; }
-  .cue .line{ font-size:14px; line-height:1.5; color:var(--page-text); }
-  .controls{
-    display:flex; gap:8px; margin-top:18px;
-  }
-  .ctrl-btn{
-    flex:1;
-    padding:9px 10px;
-    border-radius:8px;
-    border:1px solid var(--panel-border);
-    background:transparent;
-    color:var(--page-text);
-    font-size:13px;
-    cursor:pointer;
-  }
-  .ctrl-btn:hover{ background:rgba(127,127,127,0.08); }
 </style>
 </head>
 <body>
@@ -575,7 +539,7 @@
         <div class="screen" data-screen="5">
           <div class="status-bar"><span>9:41</span><span class="status-icons">●●●  📶  🔋</span></div>
           <div class="topbar-plain">
-            <span></span>
+            <button class="icon-btn" onclick="go(4)">‹</button>
             <h1>Payment Scheduled</h1>
             <button class="icon-btn" onclick="go(1)">✕</button>
           </div>
@@ -602,43 +566,9 @@
     </div>
   </div>
 
-  <div class="side-panel">
-    <h2>Call script cue</h2>
-
-    <div class="cue active" data-cue="1">
-      <div class="step">Step 1 · Home</div>
-      <div class="line">After authenticating Alex (SSN last 4, DOB, or address), reference the credit card account and state it's 45 days past due.</div>
-    </div>
-    <div class="cue" data-cue="2">
-      <div class="step">Step 2 · Account detail</div>
-      <div class="line">Briefly assess the reason for delinquency, state the past due amount ($4,000.00), and ask if Alex would like to make a payment today.</div>
-    </div>
-    <div class="cue" data-cue="3">
-      <div class="step">Step 3 · Payment entry</div>
-      <div class="line">Confirm the amount and which checking/savings account to debit. PNC only takes ACH by phone — no card entry.</div>
-    </div>
-    <div class="cue" data-cue="4">
-      <div class="step">Step 4 · Review &amp; disclosure</div>
-      <div class="line">Read the one-time payment authorization disclosure verbatim, then get verbal authorization before submitting.</div>
-    </div>
-    <div class="cue" data-cue="5">
-      <div class="step">Step 5 · Confirmation</div>
-      <div class="line">Read back the confirmation number and payment date, same as on the call.</div>
-    </div>
-
-    <div class="controls">
-      <button class="ctrl-btn" onclick="prevScreen()">‹ Back</button>
-      <button class="ctrl-btn" onclick="restart()">Restart</button>
-      <button class="ctrl-btn" onclick="nextScreen()">Next ›</button>
-    </div>
-  </div>
-
 </div>
 
 <script>
-  var current = 1;
-  var total = 5;
-
   function formatToday(){
     var d = new Date();
     return d.toLocaleDateString('en-US', { month:'long', day:'numeric', year:'numeric' });
@@ -647,15 +577,8 @@
   function go(n){
     document.querySelectorAll('.screen').forEach(function(el){ el.classList.remove('active'); });
     document.querySelector('.screen[data-screen="'+n+'"]').classList.add('active');
-    document.querySelectorAll('.cue').forEach(function(el){ el.classList.remove('active'); });
-    var cue = document.querySelector('.cue[data-cue="'+n+'"]');
-    if(cue) cue.classList.add('active');
-    current = n;
     closeModal();
   }
-  function nextScreen(){ if(current < total) go(current+1); }
-  function prevScreen(){ if(current > 1) go(current-1); }
-  function restart(){ go(1); }
 
   function openModal(){ document.getElementById('confirmModal').classList.add('show'); }
   function closeModal(){ document.getElementById('confirmModal').classList.remove('show'); }
